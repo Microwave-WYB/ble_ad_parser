@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "ble-ad-parser"
+version = "0.1.0"
+description = "A BLE Advertisement Data parser with up-to-date assigned numbers"
+authors = ["Yibo Wei <david_wyb2001@outlook.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+gitpython = "^3.1.43"
+pyyaml = "^6.0.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3.0"
+pyright = "^1.1.357"
+pylint = "^3.1.0"
+pytest = "^8.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

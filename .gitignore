@@ -1,0 +1,4 @@
+.venv/
+__pycache__/
+assigned_numbers_repo/
+assigned_numbers.json
