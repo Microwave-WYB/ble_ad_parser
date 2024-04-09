@@ -6,23 +6,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Literal, Tuple, Type
 from uuid import UUID
 
-BLUETOOTH_SIG_BASE_UUID = UUID("00000000-0000-1000-8000-00805F9B34FB")
-
-
-def bytes_to_int(data: bytes) -> int:
-    """
-    Convert a byte array to an integer using little-endian byte order
-    All numerical multi-byte entities and values associated with the following data
-    types shall use little-endian byte order. [Bluetooth Core Specification v9, Part 1]
-
-    Args:
-        data (bytes): Byte array to convert
-        byteorder (str, optional): Byte order. Defaults to "little".
-
-    Returns:
-        int: Integer representation of the byte array
-    """
-    return int.from_bytes(data, byteorder="little")
+from ble_ad_parser.utils import bytes_to_int, expand_uuid
 
 
 @dataclass
@@ -105,18 +89,11 @@ class ServiceUUIDs(ADTypeData):
         ), f"Service UUID data must be a multiple of {bit_length // 8} bytes long"
 
     @staticmethod
-    def extend_uuid(short_uuid: bytes) -> UUID:
+    def expand_uuid(short_uuid: bytes) -> UUID:
         """
         Extend a 16-bit or 32-bit UUID to a 128-bit UUID
         """
-        if len(short_uuid) == 2:
-            short_uuid = b"\x00\x00" + short_uuid + BLUETOOTH_SIG_BASE_UUID.bytes_le[4:]
-        elif len(short_uuid) == 4:
-            short_uuid = short_uuid + BLUETOOTH_SIG_BASE_UUID.bytes_le[6:]
-        else:
-            raise ValueError("Invalid short UUID length")
-
-        return UUID(bytes_le=short_uuid)
+        return expand_uuid(short_uuid)
 
     @classmethod
     def from_bytes(cls, data: bytes) -> ADTypeData:
@@ -133,7 +110,7 @@ class IncompleteUUID16(ServiceUUIDs):
     @classmethod
     def from_bytes(cls, data: bytes) -> "IncompleteUUID16":
         cls.validate(data, 16)
-        uuids = [cls.extend_uuid(data[i : i + 2]) for i in range(0, len(data), 2)]
+        uuids = [cls.expand_uuid(data[i : i + 2]) for i in range(0, len(data), 2)]
         return cls(uuids=uuids, complete=False, solicitation=False, bit_length=16)
 
     def to_bytes(self) -> bytes:
@@ -147,7 +124,7 @@ class CompleteUUID16(ServiceUUIDs):
     @classmethod
     def from_bytes(cls, data: bytes) -> "CompleteUUID16":
         cls.validate(data, 16)
-        uuids = [cls.extend_uuid(data[i : i + 2]) for i in range(0, len(data), 2)]
+        uuids = [cls.expand_uuid(data[i : i + 2]) for i in range(0, len(data), 2)]
         return cls(uuids=uuids, complete=True, solicitation=False, bit_length=16)
 
     def to_bytes(self) -> bytes:
@@ -161,7 +138,7 @@ class IncompleteUUID32(ServiceUUIDs):
     @classmethod
     def from_bytes(cls, data: bytes) -> "IncompleteUUID32":
         cls.validate(data, 32)
-        uuids = [cls.extend_uuid(data[i : i + 4]) for i in range(0, len(data), 4)]
+        uuids = [cls.expand_uuid(data[i : i + 4]) for i in range(0, len(data), 4)]
         return cls(uuids=uuids, complete=False, solicitation=False, bit_length=32)
 
     def to_bytes(self) -> bytes:
@@ -175,7 +152,7 @@ class CompleteUUID32(ServiceUUIDs):
     @classmethod
     def from_bytes(cls, data: bytes) -> "CompleteUUID32":
         cls.validate(data, 32)
-        uuids = [cls.extend_uuid(data[i : i + 4]) for i in range(0, len(data), 4)]
+        uuids = [cls.expand_uuid(data[i : i + 4]) for i in range(0, len(data), 4)]
         return cls(uuids=uuids, complete=True, solicitation=False, bit_length=32)
 
     def to_bytes(self) -> bytes:
@@ -363,7 +340,7 @@ class SolicitationUUID16(ServiceUUIDs):
     @classmethod
     def from_bytes(cls, data: bytes) -> "SolicitationUUID16":
         cls.validate(data, 16)
-        uuids = [cls.extend_uuid(data[i : i + 2]) for i in range(0, len(data), 2)]
+        uuids = [cls.expand_uuid(data[i : i + 2]) for i in range(0, len(data), 2)]
         return cls(uuids=uuids, complete=False, solicitation=True, bit_length=16)
 
     def to_bytes(self) -> bytes:
