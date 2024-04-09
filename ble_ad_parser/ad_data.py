@@ -5,16 +5,9 @@ a structured format
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List
 
-
-@dataclass
-class ADField:
-    """Class to represent an AD field"""
-
-    type: int
-    length: int
-    data: bytes
+from ble_ad_parser.ad_types import ADField
 
 
 @dataclass
@@ -36,24 +29,6 @@ class ADData:
         """
         fields = []
         while data:
-            field, data = extract_ad_field(data)
-            fields.append(field)
+            ad_field, data = ADField.from_bytes(data)
+            fields.append(ad_field)
         return cls(fields)
-
-
-def extract_ad_field(data: bytes) -> Tuple[ADField, bytes]:
-    """
-    Parse an AD field from the given data
-
-    Args:
-        data (bytes): Byte array starting with the target AD field
-
-    Returns:
-        Tuple[ADField, bytes]: Tuple containing the parsed AD field and the remaining data
-    """
-    data_type = data[0]
-    length = data[1]
-    ad_data = data[2 : 2 + length]
-    ad_field = ADField(data_type, length, ad_data)
-    remaining_data = data[2 + length :]
-    return ad_field, remaining_data
