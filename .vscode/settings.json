@@ -1,0 +1,10 @@
+{
+  "black-formatter.args": ["-l", "100"],
+  "pylint.args": ["--max-line-length=100"],
+  "python.analysis.typeCheckingMode": "standard",
+  "[python]": {
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
+}
