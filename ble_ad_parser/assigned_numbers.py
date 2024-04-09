@@ -5,6 +5,7 @@ This module syncs the assigned numbers from the Bluetooth SIG repository
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Dict
 
 import git
 import git.exc
@@ -76,3 +77,28 @@ class AssignedNumbersDownloader:
         self.cache_file.write_text(json.dumps(assigned_numbers, indent=2), encoding="utf-8")
 
         return assigned_numbers
+
+
+@dataclass
+class AssignedUUIDs:
+    """Class to represent the assigned UUIDs"""
+
+    table: Dict[int, str]
+
+    @classmethod
+    def from_assigned_numbers(cls, assigned_numbers: AssignedNumbers):
+        """
+        Create an AssignedUUIDs object from the assigned numbers dictionary
+
+        Args:
+            assigned_numbers (AssignedNumbers): Assigned numbers dictionary
+
+        Returns:
+            AssignedUUIDs: Assigned UUIDs object
+        """
+        table = {}
+        for _, values in assigned_numbers["uuids"].items():
+            for value in values["uuids"]:
+                uuid, name = value["uuid"], value["name"]
+                table[uuid] = name
+        return cls(table)
